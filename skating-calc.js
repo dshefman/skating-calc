@@ -1,5 +1,5 @@
 var numDancers = 0;
-var numJudges = 1;
+var numJudges = 0;
 var marks = [];
 var inter = [];
 var rank = [];
@@ -49,6 +49,24 @@ function addMarksRow() {
   });
 }
 
+function addMarksColumn() {
+  // Add a column to the marks table. 
+  var headerContent = '<th></th>';
+  $('#marks tr:first').append(headerContent);
+  var markContent = '<td><input type="text"></td>';
+  $('#marks tr:gt(0)').append(markContent);
+
+  // Set callbacks for new marks table text fields.
+  $('#marks tr:gt(0) td:last-child input').focusout(function() {
+    generateInter();
+  });
+}
+
+function removeMarksColumn() {
+  $('#marks th:last').remove();
+  $('#marks tr:gt(0) td:last-child').remove();
+}
+
 function addDancer() {
   // Add the dancer number/name text input fields.
   var numberInput = '<input type="text" class="numberInput dancer"> ';
@@ -89,22 +107,37 @@ function removeDancer() {
 }
 
 function addJudge() {
-  numJudges++;
-  var numberInput = '<input type="text" class="numberInput judge" id="judgeNumber' + numJudges + '"> ';
-  var nameInput = '<input type="text" class="nameInput judge" id="judgeName' + numJudges + '"> ';
+  // Add the judge number/name text input fields.
+  var numberInput = '<input type="text" class="numberInput judge"> ';
+  var nameInput = '<input type="text" class="nameInput judge"> ';
   var lineBreak = '<br class="judge" />';
   $('#judgeFields').append(numberInput + nameInput + lineBreak);
 
-  $('.numberInput').focusout(function() {
-    generateMarks();
+  // Store the judge index as .data().
+  $('#judgeFields .numberInput').eq(numJudges).data('judge', numJudges);
+
+  addMarksColumn();
+
+  // Set callback for changing judge number.
+  $('#judgeFields .numberInput').eq(numJudges).focusout(function() {
+    var thIndex = $.data(this, 'judge') + 1;
+    $('#marks tr:first th:eq(' + thIndex + ')').html(this.value);
   });
+
+  numJudges++;
 }
 
 function removeJudge() {
   if (numJudges > 1) {
-    var firstIndexDeleted = (numJudges - 1) * 3 - 1;
-    $('.judge:gt(' + firstIndexDeleted + ')').remove();
+    // Remove the input fields and the linke break.
+    var lastKeptIndex = (numJudges - 1) * 3 - 1;
+    $('#judgeFields *:gt(' + lastKeptIndex + ')').remove();
+
+    removeMarksColumn();
+
     numJudges--;
+
+    generateInter();
   }
 }
 
