@@ -1,4 +1,4 @@
-var numDancers = 1;
+var numDancers = 0;
 var numJudges = 1;
 var marks = [];
 var inter = [];
@@ -34,28 +34,57 @@ $(function() {
   //generateMarks();
 });
 
+function addMarksRow() {
+  // Add a row to the marks table. 
+  var marksContent = '<tr><td></td>';
+  for (var judge = 0; judge < numJudges; judge++) {
+    marksContent += '<td><input type="text"></td>';
+  }
+  marksContent += '</tr>';
+  $('#marks table').first().append(marksContent);
+
+  // Set callbacks for new marks table text fields.
+  $('#marks tr:last input').focusout(function() {
+    generateInter();
+  });
+}
+
 function addDancer() {
-  numDancers++;
-  var numberInput = '<input type="text" class="numberInput dancer" id="dancerNumber' + numDancers + '"> ';
-  var nameInput = '<input type="text" class="nameInput dancer" id="dancerName' + numDancers + '"> ';
+  // Add the dancer number/name text input fields.
+  var numberInput = '<input type="text" class="numberInput dancer"> ';
+  var nameInput = '<input type="text" class="nameInput dancer"> ';
   var lineBreak = '<br class="dancer" />';
   $('#dancerFields').append(numberInput + nameInput + lineBreak);
 
-  //$('.numberInput').focusout(function() {
-    //generateMarks();
-  //});
-  $('#dancerFields .numberInput:gt(' + (numDancers - 2) + ')').data('couple', numDancers - 1);
+  // Store the couple index as .data().
+  $('#dancerFields .numberInput').eq(numDancers).data('couple', numDancers);
 
-  $('#dancerFields .numberInput:gt(' + (numDancers - 2) + ')').focusout(function() {
-    console.log('hi ' + $.data(this, 'couple'));
+  addMarksRow();
+
+  // Set callback for changing couple number.
+  $('#dancerFields .numberInput').eq(numDancers).focusout(function() {
+    var trIndex = $.data(this, 'couple') + 1;
+    $('#marks tr:eq(' + trIndex + ') td:first').html(this.value);
   });
+
+  numDancers++;
+
+  // Update the inter table's rows and columns. TODO: Temp?
+  generateInter();
 }
 
 function removeDancer() {
   if (numDancers > 1) {
-    var firstIndexDeleted = (numDancers - 1) * 3 - 1;
-    $('.dancer:gt(' + firstIndexDeleted + ')').remove();
+    // Remove the input fields and the line break.
+    var lastKeptIndex = (numDancers - 1) * 3 - 1;
+    $('#dancerFields *:gt(' + lastKeptIndex + ')').remove();
+
+    // Remove the last marks row.
+    $('#marks tr:last').remove();
+
     numDancers--;
+    
+    generateInter();
   }
 }
 
@@ -80,6 +109,7 @@ function removeJudge() {
 }
 
 function generateMarks() {
+  return;
   var content = '<table><tr><th></th>';
   $('.numberInput.judge').each(function() {
     content += '<th>' + this.value + '</th>';
