@@ -1,6 +1,7 @@
 couples = []
 judges = []
 dances = []
+marks = []
 
 $ ->
   $('h1').click ->
@@ -19,6 +20,8 @@ $ ->
     removeDance()
   $('#marksGen').click ->
     generateMarks()
+  $('#interGen').click ->
+    generateInter()
 
 addCouple = ->
   newDivContent = '<div><input type="text" class="numberInput">'
@@ -84,15 +87,37 @@ generateMarks = ->
   return if couples.length < 1 or judges.length < 1 or dances.length < 1
 
   $('#marks').empty()
+  marks = []
+
   for dance in dances
+    marks.push []
+    danceIdx = marks.length - 1
     newTable = '<div><h3>' + dance.name + '</h3>'
     newTable += '<table><tr><th></th>'
     for judge in judges
       newTable += '<th>' + judge.number + '</th>'
     newTable += '</tr>'
     for couple in couples
+      marks[danceIdx].push []
+      coupleIdx = marks[danceIdx].length - 1
       newTable += '<tr><td>' + couple.number + '</td>'
       for judge in judges
+        marks[danceIdx][coupleIdx].push ""
         newTable += '<td><input type="text"></td>'
     newTable += '<br /></div>'
     $('#marks').append newTable
+
+
+  $('#marks input').each (index) ->
+    $(this).focusout ->
+      judgeIdx = index % judges.length
+      coupleIdx = (Math.floor(index / judges.length)) % couples.length
+      danceIdx = Math.floor(index / (couples.length * judges.length))
+      marks[danceIdx][coupleIdx][judgeIdx] = this.value
+      console.log marks
+
+validateMarks = ->
+
+generateInter = ->
+  # Validate stuff
+  return unless validateMarks()
