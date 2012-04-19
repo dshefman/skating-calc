@@ -114,10 +114,23 @@ generateMarks = ->
       coupleIdx = (Math.floor(index / judges.length)) % couples.length
       danceIdx = Math.floor(index / (couples.length * judges.length))
       marks[danceIdx][coupleIdx][judgeIdx] = this.value
-      console.log marks
 
 validateMarks = ->
+  for dance, danceIdx in marks
+    lastCouple = dance.length - 1
+    lastJudge = dance[0].length - 1
+    for judgeIdx in [0..lastJudge]
+      markTracker = (false for i in [0..lastCouple])
+      for coupleIdx in [0..lastCouple]
+        mark = parseInt dance[coupleIdx][judgeIdx]
+        if mark >= 1 and mark <= lastCouple+1
+          markTracker[mark-1] = true
+        else
+          return false
+      return false for m in markTracker when not m
+  return true
 
 generateInter = ->
   # Validate stuff
   return unless validateMarks()
+  console.log 'validated'

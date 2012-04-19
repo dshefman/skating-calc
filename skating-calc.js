@@ -159,18 +159,50 @@
         judgeIdx = index % judges.length;
         coupleIdx = (Math.floor(index / judges.length)) % couples.length;
         danceIdx = Math.floor(index / (couples.length * judges.length));
-        marks[danceIdx][coupleIdx][judgeIdx] = this.value;
-        return console.log(marks);
+        return marks[danceIdx][coupleIdx][judgeIdx] = this.value;
       });
     });
   };
 
-  validateMarks = function() {};
+  validateMarks = function() {
+    var coupleIdx, dance, danceIdx, i, judgeIdx, lastCouple, lastJudge, m, mark, markTracker, _i, _j, _k, _l, _len, _len1;
+    for (danceIdx = _i = 0, _len = marks.length; _i < _len; danceIdx = ++_i) {
+      dance = marks[danceIdx];
+      lastCouple = dance.length - 1;
+      lastJudge = dance[0].length - 1;
+      for (judgeIdx = _j = 0; 0 <= lastJudge ? _j <= lastJudge : _j >= lastJudge; judgeIdx = 0 <= lastJudge ? ++_j : --_j) {
+        markTracker = (function() {
+          var _k, _results;
+          _results = [];
+          for (i = _k = 0; 0 <= lastCouple ? _k <= lastCouple : _k >= lastCouple; i = 0 <= lastCouple ? ++_k : --_k) {
+            _results.push(false);
+          }
+          return _results;
+        })();
+        for (coupleIdx = _k = 0; 0 <= lastCouple ? _k <= lastCouple : _k >= lastCouple; coupleIdx = 0 <= lastCouple ? ++_k : --_k) {
+          mark = parseInt(dance[coupleIdx][judgeIdx]);
+          if (mark >= 1 && mark <= lastCouple + 1) {
+            markTracker[mark - 1] = true;
+          } else {
+            return false;
+          }
+        }
+        for (_l = 0, _len1 = markTracker.length; _l < _len1; _l++) {
+          m = markTracker[_l];
+          if (!m) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  };
 
   generateInter = function() {
     if (!validateMarks()) {
-
+      return;
     }
+    return console.log('validated');
   };
 
 }).call(this);
