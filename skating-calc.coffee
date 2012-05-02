@@ -26,6 +26,8 @@ $ ->
     generateMarks()
   $('#interGen').click ->
     generateInter()
+  $('#judgeMarksGen').click ->
+    generateJudgeMarks()
 
 # Add a couple field and create a new input element. Set a focusout
 # callback on update the couples array.
@@ -134,6 +136,10 @@ generateMarks = ->
 # Confirm that marks data is valid; that is, each judge gives all
 # marks from 1 to numCouples for each dance.
 validateMarks = ->
+  # Check that marks table exists.
+  if marks.length < 1 or marks[0].length < 1 or marks[0][0].length < 1
+    return false
+  # Check that judge marks span all possible places.
   for dance, danceIdx in marks
     lastCouple = dance.length - 1
     lastJudge = dance[0].length - 1
@@ -245,3 +251,55 @@ generateInter = ->
       interDiv += '<td>FIN</td></tr>'
     interDiv += '</table><br /></div>'
     $('#inter').append interDiv
+
+calculateJudgeMarks = ->
+  judgeMarks = []
+      #marks[danceIdx][coupleIdx][judgeIdx] = this.value
+  numDances = marks.length
+  numCouples = marks[0].length
+  numJudges = marks[0][0].length
+  for j in [0..numJudges-1]
+    judgeMarks[j] = []
+    for c in [0..numCouples-1]
+      markSum = 0
+      for d in [0..numDances-1]
+        markSum += parseInt marks[d][c][j]
+      judgeMarks[j][c] = markSum
+  return judgeMarks
+
+sortJudgeMarks = (judgeMarks) ->
+  sortedMarks = []
+  for judgeMark, idx in judgeMarks
+    sortedMarks.push
+      name: couples[idx].name
+      mark: judgeMark
+  sortedMarks.sort (a, b) ->
+    if a.mark < b.mark
+      return -1
+    if a.mark > b.mark
+      return 1
+    return 0
+  return sortedMarks
+
+generateJudgeMarks = ->
+  return unless validateMarks()
+
+  # x judges, c couples
+  # for each judge, show all c couples
+  # look through marks table to get columns for each judge, for each judge.
+  # keep judge, couple = score
+  # at end, each judge should have different scores for each couple
+  # for each judge, order the couples
+  judgeMarks = calculateJudgeMarks()
+  # Should be 2d array, first is judge (in order) and second is couple (in order). value is score
+  # Now, for each judge, take in couple marks, and then associate each entry, sorted, wth couple name/num/index and score
+  # Also, gen html.
+  $('#judgeMarks').empty()
+  for judge, judgeIdx in judgeMarks
+    judgeHtml = "<table><tr><th></th><th>#{judges[judgeIdx].name}</th></tr>"
+    sortedCouples = sortJudgeMarks judge
+    for couple in sortedCouples
+      judgeHtml += "<tr><td>#{couple.name}</td><td>#{couple.mark}</td></tr>"
+    judgeHtml += "</table>"
+    $('#judgeMarks').append judgeHtml
+
