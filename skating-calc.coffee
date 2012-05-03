@@ -30,6 +30,8 @@ $ ->
     generateJudgeMarks()
   $('#coupleMarksGen').click ->
     generateCoupleMarks()
+  $('#pasteinButton').click ->
+    pastein()
 
 # Add a couple field and create a new input element. Set a focusout
 # callback on update the couples array.
@@ -46,6 +48,14 @@ addCouple = ->
     couples[thisIndex].number = this.value
   $('#coupleFields .nameInput').last().focusout ->
     couples[thisIndex].name = this.value
+
+test_addCouple = (number, name) ->
+  idx = couples.length
+  addCouple()
+  $('#coupleFields .numberInput').last().val(number)
+  $('#coupleFields .nameInput').last().val(name)
+  couples[idx].number = number
+  couples[idx].name = name
 
 # Remove the couple field.
 removeCouple = ->
@@ -71,6 +81,14 @@ addJudge = ->
   $('#judgeFields .nameInput').last().focusout ->
     judges[thisIndex].name = this.value
 
+test_addJudge = (number, name) ->
+  idx = judges.length
+  addJudge()
+  $('#judgeFields .numberInput').last().val(number)
+  $('#judgeFields .nameInput').last().val(name)
+  judges[idx].number = number
+  judges[idx].name = name
+
 # Remove the judge field.
 removeJudge = ->
   return if judges.length < 1
@@ -93,6 +111,14 @@ addDance = ->
     dances[thisIndex].number = this.value
   $('#danceFields .nameInput').last().focusout ->
     dances[thisIndex].name = this.value
+
+test_addDance = (number, name) ->
+  idx = dances.length
+  addDance()
+  $('#danceFields .numberInput').last().val(number)
+  $('#danceFields .nameInput').last().val(name)
+  dances[idx].number = number
+  dances[idx].name = name
 
 # Remove the dance field.
 removeDance = ->
@@ -134,6 +160,26 @@ generateMarks = ->
       coupleIdx = (Math.floor(index / judges.length)) % couples.length
       danceIdx = Math.floor(index / (couples.length * judges.length))
       marks[danceIdx][coupleIdx][judgeIdx] = this.value
+
+test_addMarks = (newMarks) ->
+  generateMarks()
+
+  numDances = newMarks.length
+  numCouples = newMarks[0].length
+  numJudges = newMarks[0][0].length
+  # TODO: Validation vs current entries.
+
+  markList = []
+  for d in [0..numDances-1]
+    for c in [0..numCouples-1]
+      for j in [0..numJudges-1]
+        markList.push newMarks[d][c][j]
+        marks[d][c][j] = newMarks[d][c][j]
+
+  counter = 0
+  $('#marks input').each (index) ->
+    $(this).val(markList[counter++])
+  # TODO Validate and show error message if bad.
 
 # Confirm that marks data is valid; that is, each judge gives all
 # marks from 1 to numCouples for each dance.
@@ -349,3 +395,75 @@ generateCoupleMarks = ->
       coupleHtml += "<tr><td>#{judge.name}</td><td>#{judge.mark}</td></tr>"
     coupleHtml += "</table>"
     $('#coupleMarks').append coupleHtml
+
+pastein = ->
+  pasteStr = $('#pastein').val()
+  coupleRe = /(Couples(?:.|\n)*)/g
+  coupleArr = coupleRe.exec pasteStr
+  #console.log pasteStr
+  #console.log coupleArr
+  tmp = coupleArr[1].split '\n'
+
+  # Parse couples and judges.
+  parsingCouples = true
+  linesToSkip = 1
+  totalCouples = 0
+  totalJudges = 0
+  for line in tmp
+    if linesToSkip > 0
+      linesToSkip--
+      continue
+    splitLine = line.split '\t'
+    number = parseInt splitLine[0]
+    if isNaN(number)
+      if parsingCouples
+        parsingCouples = false
+        linesToSkip = 1
+      else
+        break
+    else
+      if parsingCouples
+        test_addCouple splitLine[0], splitLine[1]
+        totalCouples++
+      else
+        test_addJudge splitLine[0], splitLine[1]
+        totalJudges++
+
+  newMarks = []
+  #console.log pasteStr.split '\n'
+  tmp = pasteStr.split '\n'
+  linesToSkip = 2
+  gotDance = false
+  coupleCounter = -1
+  danceIdx = -1
+  coupleIdx = -1
+  for line in tmp
+    if linesToSkip > 0
+      linesToSkip--
+      continue
+    if not gotDance
+      if line == "Summary"
+        break
+      danceCode = line.charAt(0)
+      test_addDance danceCode, line
+      danceIdx++
+      gotDance = true
+      linesToSkip = 1
+      coupleCounter = totalCouples
+      newMarks[danceIdx] = []
+      coupleIdx = -1
+    else
+      # On a couple line.
+      coupleIdx++
+      newMarks[danceIdx][coupleIdx] = []
+      splitLine = line.split '\t'
+      #console.log "judges #{totalJudges}"
+      #console.log splitLine
+      for judgePos in [1..totalJudges]
+        judgeIdx = judgePos - 1
+        newMarks[danceIdx][coupleIdx][judgeIdx] = splitLine[judgePos]
+      coupleCounter--
+      if coupleCounter < 1
+        gotDance = false
+        linesToSkip = 1
+  test_addMarks newMarks
