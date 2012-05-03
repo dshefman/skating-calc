@@ -28,6 +28,8 @@ $ ->
     generateInter()
   $('#judgeMarksGen').click ->
     generateJudgeMarks()
+  $('#coupleMarksGen').click ->
+    generateCoupleMarks()
 
 # Add a couple field and create a new input element. Set a focusout
 # callback on update the couples array.
@@ -303,3 +305,47 @@ generateJudgeMarks = ->
     judgeHtml += "</table>"
     $('#judgeMarks').append judgeHtml
 
+
+
+calculateCoupleMarks = ->
+  coupleMarks = []
+      #marks[danceIdx][coupleIdx][judgeIdx] = this.value
+  numDances = marks.length
+  numCouples = marks[0].length
+  numJudges = marks[0][0].length
+  for c in [0..numCouples-1]
+    coupleMarks[c] = []
+    for j in [0..numJudges-1]
+      markSum = 0
+      for d in [0..numDances-1]
+        markSum += parseInt marks[d][c][j]
+      coupleMarks[c][j] = markSum
+  return coupleMarks
+
+sortCoupleMarks = (coupleMarks) ->
+  sortedMarks = []
+  for coupleMark, idx in coupleMarks
+    sortedMarks.push
+      name: judges[idx].name
+      mark: coupleMark
+  sortedMarks.sort (a, b) ->
+    if a.mark < b.mark
+      return -1
+    if a.mark > b.mark
+      return 1
+    return 0
+  return sortedMarks
+
+
+generateCoupleMarks = ->
+  return unless validateMarks()
+
+  coupleMarks = calculateCoupleMarks()
+  $('#coupleMarks').empty()
+  for couple, coupleIdx in coupleMarks
+    coupleHtml = "<table><tr><th></th><th>#{couples[coupleIdx].name}</th></tr>"
+    sortedJudges = sortCoupleMarks couple
+    for judge in sortedJudges
+      coupleHtml += "<tr><td>#{judge.name}</td><td>#{judge.mark}</td></tr>"
+    coupleHtml += "</table>"
+    $('#coupleMarks').append coupleHtml
