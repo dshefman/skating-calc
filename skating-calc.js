@@ -504,11 +504,12 @@
   };
 
   pastein = function() {
-    var coupleArr, coupleCounter, coupleIdx, coupleRe, danceCode, danceIdx, gotDance, judgeIdx, judgePos, line, linesToSkip, newMarks, number, parsingCouples, pasteStr, splitLine, tmp, totalCouples, totalJudges, _i, _j, _k, _len, _len1;
+    var coupleArr, coupleCounter, coupleIdx, coupleRe, coupleToIndex, danceCode, danceIdx, gotDance, judgeIdx, judgePos, line, linesToSkip, newMarks, number, parsingCouples, pasteStr, splitLine, tmp, totalCouples, totalJudges, _i, _j, _k, _len, _len1;
     pasteStr = $('#pastein').val();
     coupleRe = /(Couples(?:.|\n)*)/g;
     coupleArr = coupleRe.exec(pasteStr);
     tmp = coupleArr[1].split('\n');
+    coupleToIndex = {};
     parsingCouples = true;
     linesToSkip = 1;
     totalCouples = 0;
@@ -531,6 +532,7 @@
       } else {
         if (parsingCouples) {
           test_addCouple(splitLine[0], splitLine[1]);
+          coupleToIndex[splitLine[0]] = totalCouples;
           totalCouples++;
         } else {
           test_addJudge(splitLine[0], splitLine[1]);
@@ -552,7 +554,7 @@
         continue;
       }
       if (!gotDance) {
-        if (line === "Summary") {
+        if (line === "Summary" || line.trim() === "Couples") {
           break;
         }
         danceCode = line.charAt(0);
@@ -564,9 +566,9 @@
         newMarks[danceIdx] = [];
         coupleIdx = -1;
       } else {
-        coupleIdx++;
-        newMarks[danceIdx][coupleIdx] = [];
         splitLine = line.split('\t');
+        coupleIdx = coupleToIndex[splitLine[0]];
+        newMarks[danceIdx][coupleIdx] = [];
         for (judgePos = _k = 1; 1 <= totalJudges ? _k <= totalJudges : _k >= totalJudges; judgePos = 1 <= totalJudges ? ++_k : --_k) {
           judgeIdx = judgePos - 1;
           newMarks[danceIdx][coupleIdx][judgeIdx] = splitLine[judgePos];

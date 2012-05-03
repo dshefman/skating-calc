@@ -404,6 +404,8 @@ pastein = ->
   #console.log coupleArr
   tmp = coupleArr[1].split '\n'
 
+  coupleToIndex = {}
+
   # Parse couples and judges.
   parsingCouples = true
   linesToSkip = 1
@@ -424,6 +426,7 @@ pastein = ->
     else
       if parsingCouples
         test_addCouple splitLine[0], splitLine[1]
+        coupleToIndex[splitLine[0]] = totalCouples
         totalCouples++
       else
         test_addJudge splitLine[0], splitLine[1]
@@ -442,7 +445,7 @@ pastein = ->
       linesToSkip--
       continue
     if not gotDance
-      if line == "Summary"
+      if line == "Summary" || line.trim() == "Couples"
         break
       danceCode = line.charAt(0)
       test_addDance danceCode, line
@@ -454,9 +457,11 @@ pastein = ->
       coupleIdx = -1
     else
       # On a couple line.
-      coupleIdx++
-      newMarks[danceIdx][coupleIdx] = []
       splitLine = line.split '\t'
+      # Find couple index if out of order.
+      coupleIdx = coupleToIndex[splitLine[0]]
+      #coupleIdx++
+      newMarks[danceIdx][coupleIdx] = []
       #console.log "judges #{totalJudges}"
       #console.log splitLine
       for judgePos in [1..totalJudges]
