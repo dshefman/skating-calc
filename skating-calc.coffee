@@ -396,10 +396,89 @@ generateCoupleMarks = ->
 
 pastein = ->
   pasteStr = $('#pastein').val()
+  pageType = $('#pasteinSelect').val()
+  switch pageType
+    when "o2cm" then pasteinO2cm pasteStr
+    when "danceresults" then pasteinDanceresults pasteStr
+
+pasteinDanceresults = (pasteStr) ->
+  judgeRe = /(Judge Name(?:.|\n)*)/g
+  judgeArr = judgeRe.exec pasteStr
+  tmp = judgeArr[1].split '\n'
+  #console.log tmp
+
+  totalJudges = 0
+  # Loop over judges until end text is seen.
+  endText = "Skip Navigation Links."
+  linesToSkip = 1
+  for line in tmp
+    if linesToSkip > 0
+      linesToSkip--
+      continue
+    if line == endText
+      break
+    splitLine = line.split '\t'
+    test_addJudge splitLine[0], splitLine[1]
+    totalJudges++
+
+  # Get everything else. Couples first
+  totalCouples = 0
+  markRe = /(Dance:(?:.|\n)*)/g
+  markArr = markRe.exec pasteStr
+  tmp = markArr[1].split '\n'
+
+  # Couples.
+  linesToSkip = 3
+  for line in tmp
+    if linesToSkip > 0
+      linesToSkip--
+      continue
+    if line == ""
+      break
+    splitLine = line.split '\t'
+    test_addCouple splitLine[0], "#{splitLine[1]} & #{splitLine[2]}"
+    totalCouples++
+
+  # Dances and marks.
+  newMarks = []
+  linesToSkip = 1
+  gotDance = false
+  danceIdx = -1
+  for line in tmp
+    if linesToSkip > 0
+      linesToSkip--
+      continue
+    if not gotDance
+      if line == "Final Results"
+        break
+      danceCode = line.charAt(0)
+      test_addDance danceCode, line
+      danceIdx++
+      newMarks[danceIdx] = []
+      gotDance = true
+      linesToSkip = 1
+      coupleIdx = 0
+    else
+      # In a couple loop. 
+      if line == ""
+        # End couple loop, next is a dance or end.
+        gotDance = false
+      else
+        # first 3 are not marks.
+        newMarks[danceIdx][coupleIdx] = []
+        splitLine = line.split '\t'
+        lastJudgePos = totalJudges - 1 + 3
+        for judgePos in [3..lastJudgePos]
+          judgeIdx = judgePos - 3
+          newMarks[danceIdx][coupleIdx][judgeIdx] = splitLine[judgePos]
+        coupleIdx++
+  test_addMarks newMarks
+
+
+pasteinO2cm = (pasteStr) ->
+  # O2CM: Get couple and judge lines.
   coupleRe = /(Couples(?:.|\n)*)/g
   coupleArr = coupleRe.exec pasteStr
-  #console.log pasteStr
-  #console.log coupleArr
   tmp = coupleArr[1].split '\n'
 
   coupleToIndex = {}
