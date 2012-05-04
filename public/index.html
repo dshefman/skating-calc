@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="lib/jquery-1.7.2.js"></script>
+    <script src="skating-calc.js"></script>
+    <link href="skating-calc.css" rel="stylesheet" type="text/css" media="all">
+    <title>skating-calc</title>
+  </head>
+  <body>
+    <h1>skating-calc</h1>
+    <h2>Paste in</h2>
+    <select id="pasteinSelect">
+      <option value="o2cm">O2CM</option>
+      <option value="danceresults">DanceResults</option>
+    </select>
+    <textarea id="pastein" rows="10" cols="80"></textarea>
+    <button id="pasteinButton">Paste in</button>
+    <br />
+    <div id="couples">
+      <h2>Couples</h2>
+      <div id="coupleFields"></div>
+      <button id="coupleAdd">Add</button>
+      <button id="coupleRemove">Remove</button>
+    </div>
+    <br />
+    <div id="judges">
+      <h2>Judges</h2>
+      <div id="judgeFields"></div>
+      <button id="judgeAdd">Add</button>
+      <button id="judgeRemove">Remove</button>
+    </div>
+    <br />
+    <div id="dances">
+      <h2>Dances</h2>
+      <div id="danceFields"></div>
+      <button id="danceAdd">Add</button>
+      <button id="danceRemove">Remove</button>
+    </div>
+    <br />
+    <h2>Marks</h2>
+    <button id="marksGen">Marks</button>
+    <div id="marks"></div>
+    <br />
+    <h2>Inter</h2>
+    <button id="interGen">Inter</button>
+    <div id="inter"></div>
+    <br />
+    <h2>Judge marks</h2>
+    <button id="judgeMarksGen">Judge marks</button>
+    <div id="judgeMarks"></div>
+    <br />
+    <h2>Couple marks</h2>
+    <button id="coupleMarksGen">Couple marks</button>
+    <div id="coupleMarks"></div>
+  </body>
+</html>
