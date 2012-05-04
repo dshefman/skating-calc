@@ -8,8 +8,6 @@ marks = []
 
 # Add listeners to all buttons.
 $ ->
-  $('h1').click ->
-    $(this).hide 'slow'
   $('#coupleAdd').click ->
     addCouple()
   $('#coupleRemove').click ->

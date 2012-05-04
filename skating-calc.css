@@ -3,11 +3,20 @@ body {
   font-family: verdana, helvetica, arial, sans-serif;
 }
 
+h1, h2 {
+  border-bottom: 1px solid gray; 
+}
+
 table {
   border: 1px solid black;
+  border-collapse: collapse;
 }
 
 th, td {
+  border: 1px solid black;
+}
+
+tr {
   border: 1px solid black;
 }
 
@@ -17,26 +26,4 @@ input {
 
 input.nameInput {
   width: 20em;
-}
-
-#marks {
-  float: left;
-}
-
-#marks td {
-  height: 25px;
-}
-
-#marks input {
-  padding: 0px;
-  height: 15px;
-}
-
-#inter {
-  padding-left: 4px;
-  overflow: hidden;
-}
-
-#inter td {
-  height: 25px;
 }

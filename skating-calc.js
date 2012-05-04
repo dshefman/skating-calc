@@ -11,9 +11,6 @@
   marks = [];
 
   $(function() {
-    $('h1').click(function() {
-      return $(this).hide('slow');
-    });
     $('#coupleAdd').click(function() {
       return addCouple();
     });
